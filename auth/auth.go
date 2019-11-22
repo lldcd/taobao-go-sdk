@@ -72,12 +72,22 @@ func (app *TaoBaoApp) BuildQuery(api apis.TaobaoApiInterface) io.Reader {
 	paramsMap["timestamp"] = time.Now().Format("2006-01-02 15:04:05")
 	paramsMap["format"] = "json"
 	paramsMap["v"] = "2.0"
+	if paramsMap["format"] == "json" {
+		paramsMap["simplify"] = "true"
+	}
 	for k,_:=range api.GetValues(){
 		paramsMap[k] = api.GetValues().Get(k)
 	}
 	query := url.Values{}
 	for k, v := range paramsMap {
-		query.Add(k,v.(string))
+		switch v.(type) {
+		case string:
+			query.Add(k,v.(string))
+		default:
+		}
+		if v,ok := v.(string);ok {
+			query.Add(k,v)
+		}
 	}
 
 	query.Add("sign",app.Signature(paramsMap))

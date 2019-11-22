@@ -1,6 +1,8 @@
 package apis
 
-import "net/url"
+import (
+	"net/url"
+)
 
 type TaobaoApiInterface interface {
 	GetMethod() string
@@ -39,3 +41,7 @@ func (tr *TaobaoApi) GetMethod(method string) string{
 	return tr.method
 }
 
+//类型转换器
+type TypeConverter interface {
+	StructToJson() string
+}

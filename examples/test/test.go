@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/nutsdo/taobao-go-sdk/apis/tbk"
 	"github.com/nutsdo/taobao-go-sdk/client"
@@ -18,4 +19,8 @@ func main()  {
 		fmt.Println(respErr)
 	}
 	fmt.Println(string(resData))
+	var ItemClickExtractResponse  = tbk.ItemClickExtractResponse{}
+	json.Unmarshal(resData,&ItemClickExtractResponse)
+
+	fmt.Printf("%#v", ItemClickExtractResponse)
 }

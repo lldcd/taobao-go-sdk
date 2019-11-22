@@ -1,6 +1,8 @@
 package tbk
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/nutsdo/taobao-go-sdk/apis"
 )
 
@@ -15,3 +17,17 @@ func (t *ItemClickExtract) GetMethod() string {
 func (t *ItemClickExtract) SetClickUrl(clickUrl string) {
 	t.SetValue("click_url",clickUrl)
 }
+
+type ItemClickExtractResponse struct {
+	ItemId string `json:"item_id"`
+	OpenIid string `json:"open_iid"`
+}
+
+func (o *ItemClickExtract) StructToJson() string {
+	json,err := json.Marshal(o)
+	if err != nil{
+		fmt.Println(err)
+	}
+	return string(json)
+}
+
