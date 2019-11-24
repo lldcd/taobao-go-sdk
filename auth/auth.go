@@ -13,19 +13,19 @@ import (
 )
 
 type TaoBaoApp struct {
-	AppKey string
+	AppKey    string
 	AppSecret string
 }
 
-func New(appkey,secret string) *TaoBaoApp {
-	return &TaoBaoApp{AppKey:appkey,AppSecret:secret}
+func New(appkey, secret string) *TaoBaoApp {
+	return &TaoBaoApp{AppKey: appkey, AppSecret: secret}
 }
 
 func (app *TaoBaoApp) Signature(params map[string]interface{}) string {
 
 	var keys []string
 	params["app_key"] = app.AppKey
-	for k, v := range params{
+	for k, v := range params {
 		switch v.(type) {
 		case []byte:
 		default:
@@ -43,23 +43,23 @@ func (app *TaoBaoApp) Signature(params map[string]interface{}) string {
 	}
 	for _, key := range keys {
 		query.WriteString(key)
-		v,_:=params[key].(string)
-		if v!="" {
+		v, _ := params[key].(string)
+		if v != "" {
 			query.WriteString(v)
 		}
 
 	}
-	fmt.Println(query.String())
+	//fmt.Println(query.String())
 	var sign string
 	if params["sign_method"] == "hmac" {
 		//生成签名方式:HMAC_MD5
-		sign = fmt.Sprintf("%x", hmac.New(md5.New,[]byte(app.AppSecret)))
-	}else {
+		sign = fmt.Sprintf("%x", hmac.New(md5.New, []byte(app.AppSecret)))
+	} else {
 		//生成签名方式:MD5
 		query.WriteString(app.AppSecret)
 		sign = fmt.Sprintf("%x", md5.Sum([]byte(query.String())))
 	}
-	fmt.Println(sign)
+	//fmt.Println(sign)
 	return strings.ToUpper(sign)
 }
 
@@ -67,7 +67,7 @@ func (app *TaoBaoApp) BuildQuery(api apis.TaobaoApiInterface) io.Reader {
 
 	paramsMap := make(map[string]interface{})
 	paramsMap["method"] = api.GetMethod()
-	paramsMap["app_key"]= app.AppKey
+	paramsMap["app_key"] = app.AppKey
 	paramsMap["sign_method"] = "md5"
 	paramsMap["timestamp"] = time.Now().Format("2006-01-02 15:04:05")
 	paramsMap["format"] = "json"
@@ -75,23 +75,22 @@ func (app *TaoBaoApp) BuildQuery(api apis.TaobaoApiInterface) io.Reader {
 	if paramsMap["format"] == "json" {
 		paramsMap["simplify"] = "true"
 	}
-	for k,_:=range api.GetValues(){
+	for k, _ := range api.GetValues() {
 		paramsMap[k] = api.GetValues().Get(k)
 	}
 	query := url.Values{}
 	for k, v := range paramsMap {
 		switch v.(type) {
 		case string:
-			query.Add(k,v.(string))
+			query.Add(k, v.(string))
 		default:
 		}
-		if v,ok := v.(string);ok {
-			query.Add(k,v)
+		if v, ok := v.(string); ok {
+			query.Add(k, v)
 		}
 	}
 
-	query.Add("sign",app.Signature(paramsMap))
+	query.Add("sign", app.Signature(paramsMap))
 
 	return strings.NewReader(query.Encode())
 }
-
